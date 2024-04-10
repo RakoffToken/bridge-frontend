@@ -20,23 +20,12 @@ import { Select, SelectChangeEvent } from '@mui/material'
 import BalanceCard from './BalanceCard'
 import { Bridge } from './pages/Bridge'
 import { App } from './App'
+import Notification from './Notification'
+import { RecoilRoot } from 'recoil'
 
 const drawerWidth = 240;
 
-export function getBalanceCw20(chain: string, token: string, holder: string) {
-  let lcd = getLcd(chain);
-  let query_msg = {
-    balance: {
-      address: holder,
-    },
-  };
-  let encodedQuery = Buffer.from(JSON.stringify(query_msg), "ascii").toString('base64');
-  const encodedQueryUrl = encodeURIComponent(encodedQuery);
-  return fetch(
-    `${lcd}/cosmwasm/wasm/v1/contract/${token}/smart/${encodedQueryUrl}`,
-    { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json' }) },
-  ).then((res) => res.json());
-}
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -103,7 +92,6 @@ const Sidebar = () => {
 const WC_PROJECT_ID = "2b7d5a2da89dd74fed821d184acabf95";
 export const CONTROLLER = new KeplrController(WC_PROJECT_ID);
 
-
 export const Home = () => {
   
   const classes = useStyles();
@@ -154,7 +142,7 @@ export const Home = () => {
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" noWrap>
-            My App
+            <b>Rakoff</b>Bridge
           </Typography>
           <IconButton>
           {connected ? (
@@ -221,7 +209,9 @@ if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <AppWithRouter />
+      <RecoilRoot>
+        <AppWithRouter />
+      </RecoilRoot>
     </React.StrictMode>
   );
 }

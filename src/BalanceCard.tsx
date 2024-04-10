@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, SetStateAction, Dispatch } from 'react';
 import { TextField, Button, Typography, Container, Slider, Card, CardContent, Grid, Select, MenuItem } from '@material-ui/core';
-import { getCw20Balance, MsgExecuteContract } from 'cosmes/client';
-import { CONTROLLER, getBalanceCw20, useChain } from './main';
-import { getBridge, getChainIds } from './utils';
+import { MsgExecuteContract } from 'cosmes/client';
+import { CONTROLLER, useChain} from './main';
+import { getBalance, getBridge, getBridgeMessage, getChainIds, getChainsTokens, getDecimals } from './utils';
 import { ConnectedWallet } from 'cosmes/wallet';
+import { useNotifications } from './App';
 
 interface BalanceCardProps {
   // Define your props here
@@ -20,26 +21,50 @@ const marks = [
   { value: 100 },
 ];
 
-const BalanceCard: React.FC<BalanceCardProps> = (props) => {
+const BalanceCard: React.FC = () => {
   
-  const token = props.token;
+  //const token = props.token;
   const cardRef = useRef<HTMLDivElement>(null);
 
   // State for current balance, amount to send, and address to send
   const [balance, setBalance] = useState<number>(100000); // Initial balance with English-style separation
   const [amountToSend, setAmountToSend] = useState<number>(0);
+  const [displayAmountToSend, setDisplayAmountToSend] = useState<string>('0');
   const [sendToAddress, setSendToAddress] = useState<string>('');
   const [balanceDisplay, setBalanceDisplay] = useState<string>('');
   const [targetChainId, setTargetChainId] = useState<string>('migaloo-1');
   const [selectibleChains, setSelectibleChains] = useState<string[]>([]);
+  const [decimals, setDecimals] = useState<number>(0);
 
   const chain = useChain();
   const [chainId, setChainId] = chain.chainId as [string, Dispatch<SetStateAction<string>>];
   const [connected, setConnected] = chain.connected as [boolean, Dispatch<SetStateAction<boolean>>];
   const [selectedWallets, setSelectedWallets] = useState<ConnectedWallet[]>([]);
   const [updated, setUpdated] = useState<boolean>(false);
+  const [selectibleTokens, setSelectibleTokens] = useState<string[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const {notifications, addNotification} = useNotifications();
 
   useEffect(() => {
+    let selectible = getChainsTokens(chainId).map((t) => t.symbol);
+    setSelectibleTokens(selectible);
+    setSelectedToken(selectible[0]);
+    console.log(selectible);
+  }, [chainId, connected]);
+
+  useEffect(() => {
+
+    getDecimals(chainId, selectedToken)
+      .then((res) => {
+        console.log("fetched decimals");
+        console.log(decimals);
+        console.log(res);
+        setDecimals(res);
+      })
+      .catch((err) => {
+        console.log(err);
+        setDecimals(0);
+      });
     
     console.log(updated);
     setUpdated(false);
@@ -49,12 +74,12 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
       return;
     }
     const holder = CONTROLLER.connectedWallets.get(chainId)?.address;
-    const bal = getBalanceCw20(chainId, token, holder || "");
+    const bal = getBalance(chainId, selectedToken, holder || "");
     bal
       .then((res) => {
-        const balance = res.data.balance;
-        const balanceString = balance.toLocaleString('de-DE');
-        setBalance(res.data.balance);
+        console.log(res);
+        const balanceString = Number((res/Math.pow(10, decimals)).toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2})
+        setBalance(res);
         setBalanceDisplay(balanceString);
       })
       .catch((err) => {
@@ -62,7 +87,7 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
         setBalance(0);
         setBalanceDisplay('0');
       });
-  }, [balance, connected, chainId, updated]);
+  }, [balance, connected, chainId, updated, selectedToken]);
 
   useEffect(() => {
     const chainIds = getChainIds();
@@ -77,25 +102,20 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
   const handleSubmit = async (event: React.FormEvent) => {
     const wallet = CONTROLLER.connectedWallets.get(chainId);
     const sender = CONTROLLER.connectedWallets.get(chainId)?.address || "";
-    const bridge = getBridge(chainId, targetChainId);
-    if (!bridge) {
-      console.log('Bridge not found');
+    const msg = getBridgeMessage(
+      chainId,
+      targetChainId,
+      selectedToken,
+      amountToSend.toString(),
+      sender,
+      sendToAddress,
+    )
+    if (msg === undefined) {
+      console.log("msg is undefined");
       return;
     }
-    const bridgeMsg = {
-      channel: bridge.channel,
-      remote_address: sendToAddress,
-      timeout: 600,
-    }
-    console.log(bridgeMsg);
-    const bridgeMsgBase64 = btoa(JSON.stringify(bridgeMsg));
-    console.log(bridgeMsgBase64);
-    const msg = new MsgExecuteContract({
-      sender: sender,
-      contract: token,
-      funds: [],
-      msg: { send: { contract: bridge.contract, amount: amountToSend.toString(), msg: bridgeMsgBase64 } },
-    });
+    console.log(msg.data.msgs)
+    
     console.log(msg)
     const tx = {
       msgs: [msg],
@@ -111,18 +131,52 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
       const defaultFee = {gas: 0, amount: {amount: '0', denom: 'uluna'}};
       const fee = await wallet.estimateFee(tx, 1.8);
       const txHash = await wallet?.broadcastTx(tx, fee);
+      wallet?.pollTx(txHash)
+        .then((res) => {
+          const holder = CONTROLLER.connectedWallets.get(chainId)?.address;
+          getBalance(chainId, selectedToken, holder || "")
+            .then((res) => {
+              console.log(res);
+              const balanceString = Number((res/Math.pow(10, decimals)).toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2})
+              setBalance(res);
+              setBalanceDisplay(balanceString);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+          addNotification(`${txHash} confirmed`);
+        })
+        .catch((err) => {
+          const holder = CONTROLLER.connectedWallets.get(chainId)?.address;
+          getBalance(chainId, selectedToken, holder || "")
+            .then((res) => {
+              console.log(res);
+              const balanceString = Number((res/Math.pow(10, decimals)).toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2})
+              setBalance(res);
+              setBalanceDisplay(balanceString);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+            console.log(err);
+            setBalance(0);
+            setBalanceDisplay('0');
+            addNotification(`${txHash} unconfirmed`);
+        });
       console.log(txHash);
-      alert(txHash);
+      addNotification(`${txHash} submitted`);
     } catch (error) {
       console.log(error);
-      alert("not able to submit tx");
-    }
-
-     
+      addNotification("Not able to submit tx");
+    }  
   };
 
   const handleSliderChange = (event: any, newValue: number | number[]) => {
-    setAmountToSend(Math.floor((balance * Number(newValue)) / 100));
+    let val = Math.floor((balance * Number(newValue)) / 100)
+    let display = val / Math.pow(10, decimals);
+    console.log(display );
+    setAmountToSend(val);
+    setDisplayAmountToSend(display.toFixed(2));
   };
 
   // Function to handle chain ID selection
@@ -137,7 +191,7 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
           <Card ref={cardRef} style={{ width: '400px' }}> {/* Set the fixed width here */}
             <CardContent>
               <Typography variant="h5">
-                <b>Rakoff</b>
+                <b>{selectedToken}</b>
               </Typography>
             </CardContent>
           </Card>
@@ -152,8 +206,13 @@ const BalanceCard: React.FC<BalanceCardProps> = (props) => {
                 <TextField
                   label="Amount to Send"
                   type="number"
-                  value={amountToSend}
-                  onChange={(e) => setAmountToSend(parseFloat(e.target.value))}
+                  value={displayAmountToSend}
+                  onChange={(e) => {
+                    let val = Number((parseFloat(e.target.value) * Math.pow(10, decimals)).toFixed(0));
+                    setAmountToSend(Number.isNaN(val) ? 0 : val);
+                    console.log(amountToSend);
+                    setDisplayAmountToSend(e.target.value);
+                  }}
                   fullWidth
                   margin="normal"
                   variant="outlined"
