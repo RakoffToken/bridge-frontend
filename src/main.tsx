@@ -89,7 +89,7 @@ const Sidebar = () => {
   );
 };
 
-const WC_PROJECT_ID = "2b7d5a2da89dd74fed821d184acabf95";
+const WC_PROJECT_ID = "dced411346559f847a4aa0425d0bc122";
 export const CONTROLLER = new KeplrController(WC_PROJECT_ID);
 
 export const Home = () => {
