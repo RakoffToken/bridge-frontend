@@ -65,8 +65,8 @@ const CW20TOKENS = [
         type: "cw20"
       },
       {
-        symbol: "LUNW",
-        address: "terra1j9q30fspe7tn0nrxpjfnzzdha4xfkyznluwnqrgxshtyv2tfe5kswnrj6c",
+        symbol: "FROG",
+        address: "terra1wez9puj43v4s25vrex7cv3ut3w75w4h6j5e537sujyuxj0r5ne2qp9uwl9",
         type: "cw20"
       },
     ],
@@ -80,6 +80,11 @@ const IBCTOKENS = [
       {
         symbol: "Rakoff",
         address: "ibc/44C29C91F202E20C8E28DFB1FA89B725C54171CD77B8948836C72E7A97E4A018",
+        type: "ibc"
+      },
+      {
+        symbol: "FROG",
+        address: "ibc/B1BD4EF49A2E051EFC85E8C6A932B559CE62F9519E0E83BE29A8F0BDF89BD1D3",
         type: "ibc"
       },
     ],

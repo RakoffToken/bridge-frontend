@@ -184,15 +184,23 @@ const BalanceCard: React.FC = () => {
     setTargetChainId(event.target.value as string);
   };
 
+  const handleTokenChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSelectedToken(event.target.value as string);
+  }
+
   return (
     <Container maxWidth="sm">
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Card ref={cardRef} style={{ width: '400px' }}> {/* Set the fixed width here */}
             <CardContent>
-              <Typography variant="h5">
-                <b>{selectedToken}</b>
-              </Typography>
+              <Select value={selectedToken} onChange={handleTokenChange} variant='outlined'>
+                {selectibleTokens.map((token) => (
+                  <MenuItem key={token} value={token}>
+                    {token}
+                  </MenuItem>
+                ))}
+              </Select>
             </CardContent>
           </Card>
         </Grid>
