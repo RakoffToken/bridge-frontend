@@ -23,6 +23,11 @@ export const CHAINS = [
           chainId: "migaloo-1",
           contract: "terra19pfxzj9580h7rjd6z6sn5x2se76vgrc0etltr79g9z3t82jzp4hq63qguc",
           channel: "channel-87",
+        },
+        {
+          chainId: "stargaze-1",
+          contract: "terra19pfxzj9580h7rjd6z6sn5x2se76vgrc0etltr79g9z3t82jzp4hq63qguc",
+          channel: "channel-89",
         }
       ],
       gasPrice: {
@@ -45,6 +50,23 @@ export const CHAINS = [
       gasPrice: {
         denom: "uwhale",
         amount: "0.15"
+      },
+    },
+    {
+      chainId: "stargaze-1",
+      rpc: "https://stargaze-rpc.polkachu.com/",
+      lcd: "https://stargaze-api.polkachu.com",
+      channel: "channel-318",
+      bridges: [
+        {
+          chainId: "columbus-5",
+          contract: "transfer",
+          channel: "channel-318",
+        }
+      ],
+      gasPrice: {
+        denom: "ustars",
+        amount: "1.1"
       },
     }
   ];
@@ -69,6 +91,12 @@ const CW20TOKENS = [
         address: "terra1wez9puj43v4s25vrex7cv3ut3w75w4h6j5e537sujyuxj0r5ne2qp9uwl9",
         type: "cw20"
       },
+      {
+        symbol: "SPACEX",
+        address: "terra14mqjm7n23ky3479hmaarzqnwrlmapje08runh5m7a29rz6sunhpsn9pq27",
+        type: "cw20"
+      }
+      
     ],
   },
 ]
@@ -89,6 +117,16 @@ const IBCTOKENS = [
       },
     ],
   },
+  {
+    chainId: "stargaze-1",
+    tokens: [
+      {
+        symbol: "SPACEX",
+        address: "ibc/61D445A08E4B15C4B10A906647D551B1BD93316CCE2FAD17E9D97AF047BC7958",
+        type: "ibc"
+      },
+    ]
+  }
 ]
 
 export async function getDecimals(chain: string, token: string) {
