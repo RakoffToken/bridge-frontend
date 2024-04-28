@@ -1,8 +1,7 @@
-import excludeVariablesFromRoot from '@mui/material/styles/excludeVariablesFromRoot';
 import { Buffer } from 'buffer';
 import { MsgExecuteContract, MsgIbcTransfer } from 'cosmes/client';
 
-type ChainInfoType = {
+/*type ChainInfoType = {
     chainId: string;
     rpc: string;
     lcd: string;
@@ -11,7 +10,7 @@ type ChainInfoType = {
       denom: string;
       amount: string;
     };
-  };
+  };*/
   
 export const CHAINS = [
     {

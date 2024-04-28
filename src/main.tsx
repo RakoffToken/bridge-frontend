@@ -1,31 +1,21 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect } from 'react'
+import React, { Dispatch, SetStateAction, useContext} from 'react'
 import ReactDOM from 'react-dom/client'
-//import App from './App.tsx'
 import './index.css'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import { createContext, useState } from 'react'
-import { AppBar, Drawer, IconButton, List, ListItem, ListItemText, MenuItem, Toolbar, useEventCallback } from '@material-ui/core'
-import { BrowserRouter, NavLink, Outlet, Route, Router, Routes } from 'react-router-dom'
+import { AppBar, Drawer, IconButton, List, ListItem, ListItemText, MenuItem, Toolbar } from '@material-ui/core'
+import { NavLink, Outlet} from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@material-ui/core/styles'
-import MenuIcon from '@material-ui/icons/Menu'
-import { Button } from '@material-ui/core'
 import { Typography } from '@material-ui/core'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { ChainInfo, ConnectedWallet, KeplrController, WalletType } from 'cosmes/wallet';
+import { ConnectedWallet, KeplrController, WalletType } from 'cosmes/wallet';
 import CloseIcon from '@mui/icons-material/Close';
-import { Buffer } from 'buffer';
-import { getCw20Balance } from 'cosmes/client'
-import { getLcd, CHAINS, getChainIds } from './utils'
+import { CHAINS, getChainIds } from './utils'
 import { Select, SelectChangeEvent } from '@mui/material'
-import BalanceCard from './BalanceCard'
-import { Bridge } from './pages/Bridge'
 import { App } from './App'
-import Notification from './Notification'
 import { RecoilRoot } from 'recoil'
 
 const drawerWidth = 240;
-
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,7 +57,6 @@ const ChainProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [chainId, setChainId] = useState(CHAINS[0].chainId);
   const [connected, setConnected] = useState(false);
-  const [wallets, setSelectedWallets] = useState<ConnectedWallet[] | null>(null);
 
   return (
     <ChainContext.Provider value={{
@@ -112,8 +101,7 @@ export const Home = () => {
           rpc: chain.rpc,
           gasPrice: chain.gasPrice
         };
-        const res = await CONTROLLER.connect(WalletType.EXTENSION, [chainInfo]);
-        
+        await CONTROLLER.connect(WalletType.EXTENSION, [chainInfo]);
       }
       setConnected(true);
     } catch (err) {
@@ -123,14 +111,14 @@ export const Home = () => {
 
   async function disconnect() {
     try {
-      const res = await CONTROLLER.disconnect(getChainIds());
+      await CONTROLLER.disconnect(getChainIds());
       setConnected(false);
     } catch (err) {
       console.error(err);
     }
   }
 
-  const c = (wallets: ConnectedWallet[]) => {
+  const c = (_wallets: ConnectedWallet[]) => {
     setConnected(false);
     connect();
   }

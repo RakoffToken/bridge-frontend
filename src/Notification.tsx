@@ -9,7 +9,7 @@ interface NotificationProps {
 
 export const Notification: React.FC<NotificationProps> = ({ message, duration = 5000 }) => {
   const [visible, setVisible] = useState(false);
-  const {notifications, addNotification} = useNotifications();
+  const {notifications} = useNotifications();
 
   useEffect(() => {
     console.log("notifications in Notification component")
@@ -19,9 +19,9 @@ export const Notification: React.FC<NotificationProps> = ({ message, duration = 
       return;
     }
     setVisible(true);
-    const timer = setTimeout(() => {
+    /*const _timer = setTimeout(() => {
       setVisible(false);
-    }, duration);
+    }, duration);*/
 
     return; // () => clearTimeout(timer);
   }, [notifications, duration]);

@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect, SetStateAction, Dispatch } from 'react';
 import { TextField, Button, Typography, Container, Slider, Card, CardContent, Grid, Select, MenuItem } from '@material-ui/core';
-import { MsgExecuteContract } from 'cosmes/client';
 import { CONTROLLER, useChain} from './main';
-import { getBalance, getBridge, getBridgeMessage, getChainIds, getChainsTokens, getDecimals } from './utils';
-import { ConnectedWallet } from 'cosmes/wallet';
+import { getBalance, getBridgeMessage, getChainIds, getChainsTokens, getDecimals } from './utils';
 import { useNotifications } from './App';
 
-interface BalanceCardProps {
+/*interface BalanceCardProps {
   // Define your props here
   token: string;
-}
+}*/
 
 const marks = [
   { value: 0 },
@@ -37,13 +35,13 @@ const BalanceCard: React.FC = () => {
   const [decimals, setDecimals] = useState<number>(0);
 
   const chain = useChain();
-  const [chainId, setChainId] = chain.chainId as [string, Dispatch<SetStateAction<string>>];
-  const [connected, setConnected] = chain.connected as [boolean, Dispatch<SetStateAction<boolean>>];
-  const [selectedWallets, setSelectedWallets] = useState<ConnectedWallet[]>([]);
+  const [chainId, _setChainId] = chain.chainId as [string, Dispatch<SetStateAction<string>>];
+  const [connected, _setConnected] = chain.connected as [boolean, Dispatch<SetStateAction<boolean>>];
+  //const [selectedWallets, setSelectedWallets] = useState<ConnectedWallet[]>([]);
   const [updated, setUpdated] = useState<boolean>(false);
   const [selectibleTokens, setSelectibleTokens] = useState<string[]>([]);
   const [selectedToken, setSelectedToken] = useState<string>('');
-  const {notifications, addNotification} = useNotifications();
+  const {addNotification} = useNotifications();
 
   useEffect(() => {
     let selectible = getChainsTokens(chainId).map((t) => t.symbol);
@@ -99,7 +97,7 @@ const BalanceCard: React.FC = () => {
   }, [chainId]);
 
   // Function to handle form submission
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (_: React.FormEvent) => {
     const wallet = CONTROLLER.connectedWallets.get(chainId);
     const sender = CONTROLLER.connectedWallets.get(chainId)?.address || "";
     const msg = getBridgeMessage(
@@ -114,7 +112,6 @@ const BalanceCard: React.FC = () => {
       console.log("msg is undefined");
       return;
     }
-    console.log(msg.data.msgs)
     
     console.log(msg)
     const tx = {
@@ -128,11 +125,11 @@ const BalanceCard: React.FC = () => {
         console.log("wallet is undefined");
         return;
       }
-      const defaultFee = {gas: 0, amount: {amount: '0', denom: 'uluna'}};
+      //const defaultFee = {gas: 0, amount: {amount: '0', denom: 'uluna'}};
       const fee = await wallet.estimateFee(tx, 1.8);
       const txHash = await wallet?.broadcastTx(tx, fee);
       wallet?.pollTx(txHash)
-        .then((res) => {
+        .then((_res) => {
           const holder = CONTROLLER.connectedWallets.get(chainId)?.address;
           getBalance(chainId, selectedToken, holder || "")
             .then((res) => {
@@ -171,7 +168,7 @@ const BalanceCard: React.FC = () => {
     }  
   };
 
-  const handleSliderChange = (event: any, newValue: number | number[]) => {
+  const handleSliderChange = (_: any, newValue: number | number[]) => {
     let val = Math.floor((balance * Number(newValue)) / 100)
     let display = val / Math.pow(10, decimals);
     console.log(display );
@@ -276,7 +273,3 @@ const BalanceCard: React.FC = () => {
 };
 
 export default BalanceCard;
-function base64(arg0: string) {
-  throw new Error('Function not implemented.');
-}
-

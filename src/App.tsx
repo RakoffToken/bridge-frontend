@@ -3,7 +3,7 @@ import { Home} from "./main";
 import { Bridge } from "./pages/Bridge";
 import { Notification } from "./Notification";
 import { useEffect } from "react";
-import {atom, selector, useRecoilState} from 'recoil';
+import {atom, useRecoilState} from 'recoil';
 
 export type NotificationType = {
   message: string;
@@ -30,7 +30,7 @@ export const useNotifications = () => {
 
 export const App = () => {
 
-  const {notifications, addNotification} = useNotifications();
+  const {notifications} = useNotifications();
 
   useEffect(() => {
     console.log(notifications);
