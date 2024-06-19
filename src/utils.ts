@@ -48,7 +48,7 @@ export const CHAINS = [
       ],
       gasPrice: {
         denom: "uwhale",
-        amount: "0.15"
+        amount: "2"
       },
     },
     {
