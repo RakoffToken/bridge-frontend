@@ -27,6 +27,11 @@ export const CHAINS = [
           chainId: "stargaze-1",
           contract: "terra19pfxzj9580h7rjd6z6sn5x2se76vgrc0etltr79g9z3t82jzp4hq63qguc",
           channel: "channel-89",
+        },
+        {
+          chainId: "osmosis-1",
+          contract: "terra19pfxzj9580h7rjd6z6sn5x2se76vgrc0etltr79g9z3t82jzp4hq63qguc",
+          channel: "channel-108",
         }
       ],
       gasPrice: {
@@ -66,6 +71,23 @@ export const CHAINS = [
       gasPrice: {
         denom: "ustars",
         amount: "1.1"
+      },
+    },
+    {
+      chainId: "osmosis-1",
+      rpc: "https://osmosis-rpc.publicnode.com",
+      lcd: "https://lcd.osmosis.zone",
+      channel: "channel-78488",
+      bridges: [
+        {
+          chainId: "columbus-5",
+          contract: "transfer",
+          channel: "channel-78488",
+        }
+      ],
+      gasPrice: {
+        denom: "uosmo",
+        amount: "0.025"
       },
     }
   ];
@@ -122,6 +144,16 @@ const IBCTOKENS = [
       {
         symbol: "SPACEX",
         address: "ibc/61D445A08E4B15C4B10A906647D551B1BD93316CCE2FAD17E9D97AF047BC7958",
+        type: "ibc"
+      },
+    ]
+  },
+  {
+    chainId: "osmosis-1",
+    tokens: [
+      {
+        symbol: "Rakoff",
+        address: "ibc/46579C587A0B8CF8B0A1FF6B0EFA2082F11876578E47FC81A9CAAD31F424AF98",
         type: "ibc"
       },
     ]
