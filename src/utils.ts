@@ -158,7 +158,7 @@ const IBCTOKENS = [
       },
       {
         symbol: "SPACEX",
-        address: "ibc/61D445A08E4B15C4B10A906647D551B1BD93316CCE2FAD17E9D97AF047BC7958",
+        address: "ibc/0C7FE8CD664C9CCB374EDDF41D6DED4898D26FC9706A9E70583A8EDFD2CE5747",
         type: "ibc"
       },
     ]
